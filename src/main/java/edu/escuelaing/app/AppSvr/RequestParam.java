@@ -11,6 +11,6 @@ import java.lang.annotation.*;
 
 public @interface RequestParam {
     String value() default "";
-    String defaultValue() default ""; // THIS IS THE KEY LINE YOU MUST HAVE
+    String defaultValue() default "";
     boolean required() default true;
 }
