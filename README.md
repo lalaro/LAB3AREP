@@ -29,7 +29,7 @@ Desarrollo del lab:
 
 ### Prerrequisitos
 
-Se necesita de Maven (La versión más reciente) y Java 21, la instalación debe realizarse desde las paginas oficiales de cada programa.
+Se necesita de Maven (La versión más reciente) y Java 19, la instalación debe realizarse desde las paginas oficiales de cada programa.
 
 
 ### Instalación

@@ -6,8 +6,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-
+@Target(ElementType.METHOD)
 public @interface GetMapping {
     public String value();
 }

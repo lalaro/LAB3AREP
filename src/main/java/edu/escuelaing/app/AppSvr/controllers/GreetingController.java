@@ -1,8 +1,8 @@
 package edu.escuelaing.app.AppSvr.controllers;
 
+import edu.escuelaing.app.AppSvr.RestController;
+import edu.escuelaing.app.AppSvr.GetMapping;
 import edu.escuelaing.app.AppSvr.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -17,7 +17,7 @@ public class GreetingController {
     }
 
     @GetMapping("/pi")
-    public static String pi(String value) {
+    public static String pi() {
         return Double.toString(Math.PI);
     }
 }
