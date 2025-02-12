@@ -27,6 +27,51 @@ En el diagrama se establece el puerto 35000 utilizado para la comunicación y la
 
 Desarrollo del lab:
 
+1. Para su primera versión cargue el POJO desde la línea de comandos , de manera similar al framework de TEST. Es decir pásela como parámetro cuando invoque el framework. Ejemplo de invocación:
+
+java -cp target/classes co.edu.escuelaing.reflexionlab.MicroSpringBoot co.edu.escuelaing.reflexionlab.FirstWebService
+
+Debemos tener en cuenta que este comando cambiara porque se va implementar en el servidor y todo va estar sobre la clase de **WebApplication**
+
+![image2.jpeg](src/main/resources/image2.jpeg)
+
+Entonces tendremos 
+
+![image3.jpeg](src/main/resources/image3.jpeg)
+
+2. Atienda la anotación @GetMapping publicando el servicio en la URI indicada, limítelo a tipos de retorno String,  ejemplo:
+
+@RestController
+public class HelloController {
+
+	@GetMapping("/")
+	public String index() {
+		return "Greetings from Spring Boot!";
+	}
+}
+
+Nuestro servicio será la clase **GreetingController**
+![image4.jpeg](src/main/resources/image4.jpeg)
+
+3. En su versión final el framework debe explorar el directorio raiz (o classpath) buscando classes con una anotación que indique que son componentes, por ejemplo @RestController y cargar todos los que tengan dicha anotación. Así no tendrá que especificarlos siempre en la línea de comandos.
+
+4.  Debe soportar también @GetMapping y debe soportar @RequestParam.
+
+5. Debe ser posible impelmentar el siguiente componente:
+
+@RestController
+public class GreetingController {
+
+	private static final String template = "Hello, %s!";
+	private final AtomicLong counter = new AtomicLong();
+
+	@GetMapping("/greeting")
+	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+		return "Hola " + name;
+	}
+}
+
+
 ### Prerrequisitos
 
 Se necesita de Maven (La versión más reciente) y Java 19, la instalación debe realizarse desde las paginas oficiales de cada programa.
@@ -41,10 +86,32 @@ Luego revisamos que haya quedado bien configurado con el comando para Windows:
 o
 ` mvn -version `
 
-Para Java debe irse a https://www.oracle.com/java/technologies/downloads/?er=221886, descargar la versión 21 de Java y agregarse en la carpeta de Program Files, luego se hace la respectiva configuración de variables de entorno según la ubicación que tenemos para el archivo de instalación, tanto de JAVA_HOME y de Path.
+Para Java debe irse a https://www.oracle.com/java/technologies/downloads/?er=221886, descargar la versión 19 de Java y agregarse en la carpeta de Program Files, luego se hace la respectiva configuración de variables de entorno según la ubicación que tenemos para el archivo de instalación, tanto de JAVA_HOME y de Path.
 Luego revisamos que haya quedado bien configurado con el comando para Windows:
 
 ` java -version `
+
+Si no tenemos la versión solicitada podemos hacer lo siguiente, para el caso de Windows:
+
+Ir al Windows PowerShell y ejecutar como administrador los siguientes codigos:
+
+` [System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk-19.0.2", [System.EnvironmentVariableTarget]::Machine) ` 
+
+Revisar las rutas de la máquina
+
+`  $env:JAVA_HOME = "C:\Program Files\Java\jdk-19.0.2" `
+
+`  $env:Path = "C:\Program Files\Java\jdk-19.0.2\bin;" + $env:Path `
+
+`  echo $env:JAVA_HOME `
+
+`  javac -version `
+
+`  java -version `
+
+Así se debe ver:
+
+![image5.jpeg](src/main/resources/image5.jpeg)
 
 ## Ejecutando las pruebas
 
