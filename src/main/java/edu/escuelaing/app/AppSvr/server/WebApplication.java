@@ -6,6 +6,7 @@ import static edu.escuelaing.app.AppSvr.server.HttpServer.staticfiles;
 import static edu.escuelaing.app.AppSvr.server.HttpServer.get;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import edu.escuelaing.app.AppSvr.EciBoot;
 
 public class WebApplication {
 
@@ -18,6 +19,7 @@ public class WebApplication {
 
         get("/app/pi", (req, resp) -> String.valueOf(Math.PI));
         get("/app/e", (req, resp) -> String.valueOf(Math.E));
+        EciBoot.loadComponents();
 
         HttpServer.main(args);
     }

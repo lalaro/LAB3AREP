@@ -8,31 +8,20 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.HashMap;
 import edu.escuelaing.app.AppSvr.server.DefaultResponse;
+import edu.escuelaing.app.AppSvr.EciBoot;
 
 public class HttpServer {
     private static Map<String, BiFunction<Request, String, String>> servicios = new HashMap<>();
-
     private static String staticFilePath = "target/classes/archivesPractice"; // o se puede usar la ruta src/main/resources/archivesPractice
     public static void main(String[] args) throws IOException, URISyntaxException {
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(35000);
-        } catch (IOException e) {
-            System.err.println("Could not listen on port: 35000.");
-            System.exit(1);
-        }
+        ServerSocket serverSocket = new ServerSocket(35000);
+        System.out.println("Servidor HTTP corriendo en el puerto 35000");
+
+        EciBoot.loadComponents();
 
         boolean running = true;
         while (running) {
-            Socket clientSocket = null;
-            try {
-                System.out.println("Listo para recibir ...");
-                clientSocket = serverSocket.accept();
-            } catch (IOException e) {
-                System.err.println("Accept failed.");
-                System.exit(1);
-            }
-
+            Socket clientSocket = serverSocket.accept();
             OutputStream out = clientSocket.getOutputStream();
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -51,30 +40,41 @@ public class HttpServer {
                     }
                     isFirstLine = false;
                 }
-
-                System.out.println("Received: " + inputLine);
-                if (!in.ready()) {
-                    break;
-                }
+                if (!in.ready()) break;
             }
 
             Request request = new Request(queryString);
-
-            if (servicios.containsKey(file)) {
-                String response = processRequest(file, request);
-                out.write(response.getBytes());
-            } else if (file.equals("/hello")) {
-                String responseA = processRequestA(file, "");
-                out.write(responseA.getBytes());
-            } else {
+            System.out.println("Solicitud recibida: " + file + " | Query: " + queryString);
+            if (isStaticFile(file)) {
+                System.out.println("Sirviendo archivo estático: " + file);
                 serveStaticFiles(file, out);
             }
-
-            out.close();
+            else {
+                String response;
+                if (servicios.containsKey(file)) {
+                    response = processRequest(file, request);
+                    System.out.println("Respuesta desde servicio registrado: " + response);
+                }
+                else if (EciBoot.services.containsKey(file)) {
+                    response = EciBoot.simulateRequest(file);
+                    System.out.println("Respuesta desde EciBoot: " + response);
+                }
+                else {
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Recurso no encontrado\"}";
+                    System.out.println("Recurso no encontrado: " + file);
+                }
+                out.write(response.getBytes());
+                out.close();
+            }
             in.close();
             clientSocket.close();
         }
         serverSocket.close();
+    }
+
+    private static boolean isStaticFile(String file) {
+        return file.endsWith(".html") || file.endsWith(".css") || file.endsWith(".js") ||
+                file.endsWith(".png") || file.endsWith(".jpg") || file.endsWith(".jpeg");
     }
 
     public static void get(String route, BiFunction<Request, String, String> f) {
