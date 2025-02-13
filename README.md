@@ -61,11 +61,11 @@ El desarrollo del Laboratorio es el siguiente:
 
 Como arquitectura tenemos:
 
-![image1.jpeg](src%2Fmain%2Fresources%2Fimage1.jpeg)
+![image1.jpeg](src/main/resources/image1.jpeg)
 
 Explicación de arquitectura:
 
-Este diagrama representa una arquitectura de sistema distribuido que involucra un cliente web, un servidor HTTP y un servidor backend, todos comunicándose a través de una red local. El cliente web realiza solicitudes al servidor HTTP, quien a su vez puede solicitar datos JSON al servidor backend. Además, el servidor HTTP sirve archivos estáticos (HTML, CSS, JS, PNG, JPEG) directamente al cliente.
+Este diagrama representa una arquitectura de sistema distribuido que involucra un cliente web, un servidor HTTP y un servidor backend, todos comunicándose a través de una red local. El cliente web realiza solicitudes al servidor HTTP, donde el servidor tiene manejo de rutas (API), con los controladores asignados (/square, /pi, /greeting), quien a su vez puede solicitar datos JSON al servidor backend. Además, el servidor HTTP sirve archivos estáticos (HTML, CSS, JS, PNG, JPEG) directamente al cliente.
 En el diagrama se establece el puerto 35000 utilizado para la comunicación y la especificación de la ruta GET. El Local Server indica que todos los componentes residen en el mismo entorno local.
 
 Desarrollo del lab:
@@ -307,7 +307,7 @@ Usamos [SemVer](http://semver.org/) para el versionado.
 
 ## Autores
 
-* **Laura Valentina Rodríguez Ortegón** - *Lab2 AREP* - [Repositorio](https://github.com/lalaro/Laboratorio-2AREP.git)
+* **Laura Valentina Rodríguez Ortegón** - *Lab3 AREP* - [Repositorio](https://github.com/lalaro/LAB3AREP.git)
 
 ## Licencia
 
