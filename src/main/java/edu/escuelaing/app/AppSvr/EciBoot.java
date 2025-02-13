@@ -6,10 +6,56 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import org.reflections.Reflections;
+import java.util.Set;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 public class EciBoot {
     public static Map<String, Method> services = new HashMap<>();
     private static final Logger logger = Logger.getLogger(EciBoot.class.getName());
+
+    public static void loadComponents() {
+        try {
+            Reflections reflections = new Reflections("edu.escuelaing.app.AppSvr.controllers");
+            Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(RestController.class);
+
+            for (Class<?> c : controllers) {
+                System.out.println("Cargando componente: " + c.getName());
+                for (Method m : c.getDeclaredMethods()) {
+                    if (m.isAnnotationPresent(GetMapping.class)) {
+                        GetMapping annotation = m.getAnnotation(GetMapping.class);
+                        services.put(annotation.value(), m);
+                        System.out.println("Método registrado: " + m.getName() + " en ruta " + annotation.value());
+                    }
+                }
+            }
+
+            System.out.println("Componentes cargados correctamente.");
+        } catch (Exception ex) {
+            System.out.println("Error inesperado en loadComponents(): " + ex.getMessage());
+        }
+    }
+
+    public static String simulateRequest(String route) {
+        try {
+            if (!services.containsKey(route)) {
+                return "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Ruta no encontrada\"}";
+            }
+            Method method = services.get(route);
+            if (method == null) {
+                return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"Método no encontrado\"}";
+            }
+            return "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type: application/json\r\n"
+                    + "\r\n"
+                    + "{\"resp\":\"" + (String) method.invoke(null, "World") + "\"}";
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"" + e.getMessage() + "\"}";
+        }
+    }
 
     //Si se desea solo probar el ECIBoot
     /*
@@ -54,50 +100,4 @@ public class EciBoot {
         }
     }
     */
-
-    public static void loadComponents() {
-        try {
-            String controllerClass = "edu.escuelaing.app.AppSvr.controllers.GreetingController";
-            System.out.println("Cargando componente: " + controllerClass);
-
-            Class<?> c = Class.forName(controllerClass);
-
-            if (!c.isAnnotationPresent(RestController.class)) {
-                System.out.println("La clase " + controllerClass + " no es un RestController.");
-                return;
-            }
-
-            for (Method m : c.getDeclaredMethods()) {
-                if (m.isAnnotationPresent(GetMapping.class)) {
-                    GetMapping annotation = m.getAnnotation(GetMapping.class);
-                    services.put(annotation.value(), m);
-                    System.out.println("Método registrado: " + m.getName() + " en ruta " + annotation.value());
-                }
-            }
-
-            System.out.println("Componentes cargados correctamente.");
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Error: No se encontró la clase.");
-        } catch (Exception ex) {
-            System.out.println("Error inesperado en loadComponents(): " + ex.getMessage());
-        }
-    }
-
-    public static String simulateRequest(String route) {
-        try {
-            if (!services.containsKey(route)) {
-                return "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Ruta no encontrada\"}";
-            }
-            Method method = services.get(route);
-            if (method == null) {
-                return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"Método no encontrado\"}";
-            }
-            return "HTTP/1.1 200 OK\r\n"
-                    + "Content-Type: application/json\r\n"
-                    + "\r\n"
-                    + "{\"resp\":\"" + (String) method.invoke(null, "World") + "\"}";
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"" + e.getMessage() + "\"}";
-        }
-    }
 }
