@@ -12,7 +12,8 @@ import edu.escuelaing.app.AppSvr.EciBoot;
 
 public class HttpServer {
     private static Map<String, BiFunction<Request, String, String>> servicios = new HashMap<>();
-    private static String staticFilePath = "target/classes/archivesPractice"; // o se puede usar la ruta src/main/resources/archivesPractice
+    private static String staticFilePath = "target/classes/archivesPractice";
+
     public static void main(String[] args) throws IOException, URISyntaxException {
         ServerSocket serverSocket = new ServerSocket(35000);
         System.out.println("Servidor HTTP corriendo en el puerto 35000");
@@ -35,8 +36,9 @@ public class HttpServer {
                     String[] parts = inputLine.split(" ");
                     file = parts[1];
                     if (file.contains("?")) {
-                        queryString = file.split("\\?")[1];
-                        file = file.split("\\?")[0];
+                        String[] splitPath = file.split("\\?");
+                        file = splitPath[0];
+                        queryString = splitPath[1];
                     }
                     isFirstLine = false;
                 }
@@ -45,6 +47,7 @@ public class HttpServer {
 
             Request request = new Request(queryString);
             System.out.println("Solicitud recibida: " + file + " | Query: " + queryString);
+
             if (isStaticFile(file)) {
                 System.out.println("Sirviendo archivo estático: " + file);
                 serveStaticFiles(file, out);
@@ -56,7 +59,8 @@ public class HttpServer {
                     System.out.println("Respuesta desde servicio registrado: " + response);
                 }
                 else if (EciBoot.services.containsKey(file)) {
-                    response = EciBoot.simulateRequest(file);
+                    Map<String, String> queryParams = parseQueryString(queryString);
+                    response = processEciBootRequest(file, queryParams);
                     System.out.println("Respuesta desde EciBoot: " + response);
                 }
                 else {
@@ -70,6 +74,42 @@ public class HttpServer {
             clientSocket.close();
         }
         serverSocket.close();
+    }
+
+    private static String processEciBootRequest(String path, Map<String, String> queryParams) {
+        try {
+            if (!EciBoot.services.containsKey(path)) {
+                return "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Ruta no encontrada\"}";
+            }
+
+            String result = EciBoot.executeService(path, queryParams);
+            if (result == null) {
+                return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"Error procesando la solicitud\"}";
+            }
+
+            return "HTTP/1.1 200 OK\r\n" +
+                    "Content-Type: application/json\r\n" +
+                    "\r\n" +
+                    "{\"result\": \"" + result + "\"}";
+        } catch (Exception e) {
+            return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"" + e.getMessage() + "\"}";
+        }
+    }
+
+    private static Map<String, String> parseQueryString(String queryString) {
+        Map<String, String> queryParams = new HashMap<>();
+        if (queryString == null || queryString.isEmpty()) {
+            return queryParams;
+        }
+
+        String[] pairs = queryString.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                queryParams.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return queryParams;
     }
 
     private static boolean isStaticFile(String file) {
@@ -86,7 +126,7 @@ public class HttpServer {
     }
 
     private static void serveStaticFiles(String filePath, OutputStream out) throws IOException {
-        String basePath = "target/classes/archivesPractice"; // o se puede usar la ruta src/main/resources/archivesPractice
+        String basePath = "target/classes/archivesPractice";
         File requestedFile = new File(basePath + filePath);
         String contentType = determineContentType(filePath);
 
@@ -108,7 +148,6 @@ public class HttpServer {
         }
     }
 
-
     private static String determineContentType(String file) {
         if (file.endsWith(".png")) {
             return "png";
@@ -125,14 +164,6 @@ public class HttpServer {
         }
     }
 
-    private static String processRequestA(String path, String query) {
-        String responseBody = "HTTP/1.1 200 OK\r\n"
-                + "Content-Type: application/json\r\n"
-                + "\r\n"
-                + "{\"message\": \"Hello World!\"}";
-        return responseBody;
-    }
-
     private static String processRequest(String path, Request request) {
         BiFunction<Request, String, String> servicio = servicios.get(path);
 
@@ -140,10 +171,10 @@ public class HttpServer {
             String responseBody = "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: application/json\r\n"
                     + "\r\n"
-                    + "{\"result\": \"" + servicio.apply(request, "") + "\"}"; // Corrected JSON
+                    + "{\"result\": \"" + servicio.apply(request, "") + "\"}";
             return responseBody;
         } else {
-            return "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Service not found\"}"; // 404 response
+            return "HTTP/1.1 404 Not Found\r\n\r\n{\"error\": \"Service not found\"}";
         }
     }
 }

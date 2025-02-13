@@ -1,17 +1,13 @@
 package edu.escuelaing.app.AppSvr;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.reflections.Reflections;
-import java.util.Set;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 public class EciBoot {
     public static Map<String, Method> services = new HashMap<>();
@@ -22,20 +18,22 @@ public class EciBoot {
             Reflections reflections = new Reflections("edu.escuelaing.app.AppSvr.controllers");
             Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(RestController.class);
 
-            for (Class<?> c : controllers) {
-                System.out.println("Cargando componente: " + c.getName());
-                for (Method m : c.getDeclaredMethods()) {
-                    if (m.isAnnotationPresent(GetMapping.class)) {
-                        GetMapping annotation = m.getAnnotation(GetMapping.class);
-                        services.put(annotation.value(), m);
-                        System.out.println("Método registrado: " + m.getName() + " en ruta " + annotation.value());
+            for (Class<?> controllerClass : controllers) {
+                logger.info("Loading component: " + controllerClass.getName());
+
+                for (Method method : controllerClass.getDeclaredMethods()) {
+                    if (method.isAnnotationPresent(GetMapping.class)) {
+                        GetMapping annotation = method.getAnnotation(GetMapping.class);
+                        services.put(annotation.value(), method);
+                        logger.info("Registered method: " + method.getName() + " at path " + annotation.value());
                     }
                 }
             }
 
-            System.out.println("Componentes cargados correctamente.");
+            logger.info("Components loaded successfully.");
         } catch (Exception ex) {
-            System.out.println("Error inesperado en loadComponents(): " + ex.getMessage());
+            logger.severe("Unexpected error in loadComponents(): " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -48,12 +46,50 @@ public class EciBoot {
             if (method == null) {
                 return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"Método no encontrado\"}";
             }
+
+            String result = executeService(route, new HashMap<>());
             return "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: application/json\r\n"
                     + "\r\n"
-                    + "{\"resp\":\"" + (String) method.invoke(null, "World") + "\"}";
-        } catch (IllegalAccessException | InvocationTargetException e) {
+                    + "{\"result\": \"" + result + "\"}";
+        } catch (Exception e) {
             return "HTTP/1.1 500 Internal Server Error\r\n\r\n{\"error\": \"" + e.getMessage() + "\"}";
+        }
+    }
+
+    public static String executeService(String path, Map<String, String> queryParams) {
+        try {
+            Method method = services.get(path);
+            if (method == null) {
+                return null;
+            }
+
+            Parameter[] parameters = method.getParameters();
+            Object[] args = new Object[parameters.length];
+
+            for (int i = 0; i < parameters.length; i++) {
+                Parameter param = parameters[i];
+                if (param.isAnnotationPresent(RequestParam.class)) {
+                    RequestParam annotation = param.getAnnotation(RequestParam.class);
+                    String paramName = annotation.value().isEmpty() ? param.getName() : annotation.value();
+                    String paramValue = queryParams.getOrDefault(paramName, annotation.defaultValue());
+
+                    if (paramValue == null || paramValue.isEmpty()) {
+                        paramValue = annotation.defaultValue();
+                    }
+
+                    if ((paramValue == null || paramValue.isEmpty()) && annotation.required()) {
+                        throw new RuntimeException("Required parameter '" + paramName + "' is missing");
+                    }
+
+                    args[i] = paramValue;
+                }
+            }
+
+            return (String) method.invoke(null, args);
+        } catch (Exception e) {
+            logger.severe("Error executing service: " + e.getMessage());
+            return "Error: " + e.getMessage();
         }
     }
 
