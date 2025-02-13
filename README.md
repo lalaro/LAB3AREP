@@ -166,6 +166,45 @@ public class GreetingController {
 	}
 }
 
+![image20.jpeg](src/main/resources/image20.jpeg)
+
+Para probar todo el funcionamiento podemos traer las rutas del WebApplication, HttpServer, GreetingController y MathController.
+http://localhost:35000/greeting?name=Laura
+
+![image21.jpeg](src/main/resources/image21.jpeg)
+
+http://localhost:35000/greeting
+
+![image22.jpeg](src/main/resources/image22.jpeg)
+
+http://localhost:35000/pi
+
+![image23.jpeg](src/main/resources/image23.jpeg)
+
+http://localhost:35000/square?n=88
+
+![image24.jpeg](src/main/resources/image24.jpeg)
+
+http://localhost:35000/index.html
+
+![image25.jpeg](src/main/resources/image25.jpeg)
+
+http://localhost:35000/app/pi
+
+![image26.jpeg](src/main/resources/image26.jpeg)
+
+http://localhost:35000/app/e
+
+![image27.jpeg](src/main/resources/image27.jpeg)
+
+http://localhost:35000/hello
+
+![image28.jpeg](src/main/resources/image28.jpeg)
+
+
+El resumen en nuestra consola de nuestras busquedas se verá así:
+![image29.jpeg](src/main/resources/image29.jpeg)
+![image30.jpeg](src/main/resources/image30.jpeg)
 
 ## Ejecutando las pruebas
 
