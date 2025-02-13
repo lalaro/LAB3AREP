@@ -10,67 +10,9 @@ Debe entregar su trabajo al final del laboratorio. Luego puede complementar para
 
 Se debe clonar el proyecto localmente con el comando:
 
-` git clone https://github.com/lalaro/Lab1AREP.git`
+` git clone https://github.com/lalaro/LAB3AREP.git`
 
 Y luego revisar las intrucciones a continuación para el manejo de soluciones del proyecto.
-
-El desarrollo del Laboratorio es el siguiente:
-
-Como arquitectura tenemos:
-
-![image1.jpeg](src%2Fmain%2Fresources%2Fimage1.jpeg)
-
-Explicación de arquitectura: 
-
-Este diagrama representa una arquitectura de sistema distribuido que involucra un cliente web, un servidor HTTP y un servidor backend, todos comunicándose a través de una red local. El cliente web realiza solicitudes al servidor HTTP, quien a su vez puede solicitar datos JSON al servidor backend. Además, el servidor HTTP sirve archivos estáticos (HTML, CSS, JS, PNG, JPEG) directamente al cliente.
-En el diagrama se establece el puerto 35000 utilizado para la comunicación y la especificación de la ruta GET. El Local Server indica que todos los componentes residen en el mismo entorno local.
-
-Desarrollo del lab:
-
-1. Para su primera versión cargue el POJO desde la línea de comandos , de manera similar al framework de TEST. Es decir pásela como parámetro cuando invoque el framework. Ejemplo de invocación:
-
-java -cp target/classes co.edu.escuelaing.reflexionlab.MicroSpringBoot co.edu.escuelaing.reflexionlab.FirstWebService
-
-Debemos tener en cuenta que este comando cambiara porque se va implementar en el servidor y todo va estar sobre la clase de **WebApplication**
-
-![image2.jpeg](src/main/resources/image2.jpeg)
-
-Entonces tendremos 
-
-![image3.jpeg](src/main/resources/image3.jpeg)
-
-2. Atienda la anotación @GetMapping publicando el servicio en la URI indicada, limítelo a tipos de retorno String,  ejemplo:
-
-@RestController
-public class HelloController {
-
-	@GetMapping("/")
-	public String index() {
-		return "Greetings from Spring Boot!";
-	}
-}
-
-Nuestro servicio será la clase **GreetingController**
-![image4.jpeg](src/main/resources/image4.jpeg)
-
-3. En su versión final el framework debe explorar el directorio raiz (o classpath) buscando classes con una anotación que indique que son componentes, por ejemplo @RestController y cargar todos los que tengan dicha anotación. Así no tendrá que especificarlos siempre en la línea de comandos.
-
-4.  Debe soportar también @GetMapping y debe soportar @RequestParam.
-
-5. Debe ser posible impelmentar el siguiente componente:
-
-@RestController
-public class GreetingController {
-
-	private static final String template = "Hello, %s!";
-	private final AtomicLong counter = new AtomicLong();
-
-	@GetMapping("/greeting")
-	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-		return "Hola " + name;
-	}
-}
-
 
 ### Prerrequisitos
 
@@ -112,6 +54,118 @@ Revisar las rutas de la máquina
 Así se debe ver:
 
 ![image5.jpeg](src/main/resources/image5.jpeg)
+
+## Solución del lab 
+
+El desarrollo del Laboratorio es el siguiente:
+
+Como arquitectura tenemos:
+
+![image1.jpeg](src%2Fmain%2Fresources%2Fimage1.jpeg)
+
+Explicación de arquitectura:
+
+Este diagrama representa una arquitectura de sistema distribuido que involucra un cliente web, un servidor HTTP y un servidor backend, todos comunicándose a través de una red local. El cliente web realiza solicitudes al servidor HTTP, quien a su vez puede solicitar datos JSON al servidor backend. Además, el servidor HTTP sirve archivos estáticos (HTML, CSS, JS, PNG, JPEG) directamente al cliente.
+En el diagrama se establece el puerto 35000 utilizado para la comunicación y la especificación de la ruta GET. El Local Server indica que todos los componentes residen en el mismo entorno local.
+
+Desarrollo del lab:
+
+1. Para su primera versión cargue el POJO desde la línea de comandos , de manera similar al framework de TEST. Es decir pásela como parámetro cuando invoque el framework. Ejemplo de invocación:
+
+java -cp target/classes co.edu.escuelaing.reflexionlab.MicroSpringBoot co.edu.escuelaing.reflexionlab.FirstWebService
+
+Debemos tener en cuenta que este comando cambiara porque se va implementar en el servidor y todo va estar sobre la clase de **WebApplication**
+
+![image2.jpeg](src/main/resources/image2.jpeg)
+
+Entonces tendremos
+
+` java -version `
+` mvn dependency:copy-dependencies `
+` java -cp "target/classes;target/dependency/*" edu.escuelaing.app.AppSvr.server.WebApplication `
+
+Para probar las clases que usan las anotaciones de forma independiente se puede:
+
+` java -cp "target/classes;target/dependency/*" edu.escuelaing.app.AppSvr.server.WebApplication edu.escuelaing.appAppSvr.controller.GreetingController ` o ` java -cp "target/classes;target/dependency/*" edu.escuelaing.app.AppSvr.server.WebApplication edu.escuelaing.appAppSvr.controller.MathController `
+
+![image3.jpeg](src/main/resources/image3.jpeg)
+
+Es necesario traer las dependencias, ya que si no se traen no puede explorar el directorio raiz, con las respectivas anotaciones
+
+![image3.1.jpeg](src/main/resources/image3.1.jpeg)
+
+2. Atienda la anotación @GetMapping publicando el servicio en la URI indicada, limítelo a tipos de retorno String,  ejemplo:
+
+@RestController
+public class HelloController {
+
+	@GetMapping("/")
+	public String index() {
+		return "Greetings from Spring Boot!";
+	}
+}
+
+Nuestro servicio será la clase **GreetingController**
+![image4.jpeg](src/main/resources/image4.jpeg)
+
+3. En su versión final el framework debe explorar el directorio raiz (o classpath) buscando classes con una anotación que indique que son componentes, por ejemplo @RestController y cargar todos los que tengan dicha anotación. Así no tendrá que especificarlos siempre en la línea de comandos.
+
+Se agregan las dependencias en el pom.xml para poder explorar el directorio raiz.
+
+![image6.jpeg](src/main/resources/image6.jpeg)
+![image7.jpeg](src/main/resources/image7.jpeg)
+
+Se configura el EciBoot, para que no realice la búsqueda en una clase específica, sino sobre todas.
+
+![image8.jpeg](src/main/resources/image8.jpeg)
+
+Se configura el HttpServer
+
+![image9.jpeg](src/main/resources/image9.jpeg)
+
+Se implementan más clases en el directorio de controllers, para poder verificar que si se haga la busqueda sobre todos.
+![image10.jpeg](src/main/resources/image10.jpeg)
+![image11.jpeg](src/main/resources/image11.jpeg)
+
+Logra identificar lo que hay en las dos clases, usando las anotaciones correspondientes.
+
+![image12.jpeg](src/main/resources/image12.jpeg)
+
+4.  Debe soportar también @GetMapping y debe soportar @RequestParam.
+
+Configuración:
+
+![image13.jpeg](src/main/resources/image13.jpeg)
+![image14.jpeg](src/main/resources/image14.jpeg)
+
+Implementación para @GetMapping y @RequestParam.
+
+![image15.jpeg](src/main/resources/image15.jpeg)
+![image16.jpeg](src/main/resources/image16.jpeg)
+
+Directorio de Controllers:
+
+![image18.jpeg](src/main/resources/image18.jpeg)
+![image19.jpeg](src/main/resources/image19.jpeg)
+
+Acá se verán las respuestas del directorio controllers, como debería traer la respuesta a su petición:
+
+![image17.jpeg](src/main/resources/image17.jpeg)
+
+5. Debe ser posible impelmentar el siguiente componente:
+
+@RestController
+public class GreetingController {
+
+	private static final String template = "Hello, %s!";
+	private final AtomicLong counter = new AtomicLong();
+
+	@GetMapping("/greeting")
+	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+		return "Hola " + name;
+	}
+}
+
 
 ## Ejecutando las pruebas
 
