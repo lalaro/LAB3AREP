@@ -216,13 +216,64 @@ O de igual forma en el ID que deseemos.
 
 Así se vera:
 
-
+![image31.jpeg](src/main/resources/image31.jpeg)
+![image32.jpeg](src/main/resources/image32.jpeg)
 
 ### Desglose en pruebas de extremo a extremo
 
+1. testGreetingWithParameter
+
+Qué prueba: Verifica que la ruta /greeting con el parámetro name=Lala devuelva "Hola Lala".
+Por qué la prueba: Asegura que el servidor maneja correctamente los parámetros en la solicitud y personaliza el saludo según el nombre proporcionado.
+
+2. testPiEndpoint
+
+Qué prueba: Comprueba que la ruta /pi devuelve una respuesta con el código "200 OK" y el valor de π (3.141592653589793).
+Por qué la prueba: Garantiza que el servidor responde correctamente a la solicitud y devuelve un valor matemático predefinido.
+
+3. testNotFoundRoute
+
+Qué prueba: Verifica que al acceder a una ruta inexistente (/notfound), el servidor responda con "404 Not Found".
+Por qué la prueba: Asegura que el servidor maneja adecuadamente rutas inválidas y proporciona un error claro cuando no se encuentra el recurso solicitado.
+
+4. testGreetingEndpoint
+
+Qué prueba: Verifica que la ruta /greeting sin parámetros devuelva "Hola World" con un estado "200 OK".
+Por qué la prueba: Asegura que el servidor tiene un valor predeterminado para el parámetro name cuando no se proporciona en la solicitud.
+
+5. testSquareEndpoint
+
+Qué prueba: Comprueba que la ruta /square con el parámetro n=100 devuelva "10000".
+Por qué la prueba: Verifica que el servidor realice correctamente la operación de elevar un número al cuadrado.
+
+6. testSquareInvalidInput
+
+Qué prueba: Verifica que la ruta /square?n=abc devuelva un mensaje de error "Invalid input: 'n' must be an integer".
+Por qué la prueba: Asegura que el servidor maneja correctamente valores no numéricos y proporciona una respuesta adecuada en lugar de generar un fallo inesperado.
+
+7. testSimulatedRequest
+
+Qué prueba: Comprueba nuevamente que la ruta /pi responde con "200 OK" y el valor de π (3.141592653589793).
+Por qué la prueba: Es una validación adicional de que la simulación de solicitudes funciona correctamente y devuelve respuestas esperadas.
+
+8. testMissingRequiredParam
+
+Qué prueba: Verifica que la ruta /square sin el parámetro n devuelve un mensaje de error.
+Por qué la prueba: Asegura que el servidor maneja correctamente la falta de parámetros obligatorios y responde con un mensaje de error en lugar de fallar silenciosamente.
+
+9. testExecuteServiceWithNumber
+
+Qué prueba: Comprueba que la ruta /square con n=5 devuelve "25".
+Por qué la prueba: Verifica que el cálculo del cuadrado se realice correctamente con diferentes valores de entrada.
+
+10. testRegisteredServicesExist
+
+Qué prueba: Confirma que las rutas /greeting y /square están registradas en el servidor.
+Por qué la prueba: Asegura que los servicios esperados existen en la aplicación y pueden manejar solicitudes.
 
 ### Y pruebas de estilo de código
 
+El propósito principal de estas pruebas es asegurar que el servidor funcione de manera estable y confiable, respondiendo correctamente a diferentes solicitudes y manejando errores de forma adecuada. Estas pruebas ayudan a prevenir problemas en producción al detectar posibles fallos desde el desarrollo.
 
 ## Despliegue
 
@@ -238,6 +289,8 @@ O de igual forma en el ID que deseemos.
 
 Así se vera:
 
+![image33.jpeg](src/main/resources/image33.jpeg)
+![image34.jpeg](src/main/resources/image34.jpeg)
 
 ## Construido con
 
